@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.db
+.flask_secret
 .venv/
 venv/
 
