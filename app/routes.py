@@ -100,22 +100,25 @@ def logout():
 def upload():
     form = UploadForm()
     if form.validate_on_submit():
-        stl_filename = None
+        saved_stl_filename = None
         original_filename = None
-        photo_filename = None
+        saved_photo_filename = None
         try:
-            stl_filename, original_filename = save_upload(
+            saved_stl_filename, original_filename = save_upload(
                 form.stl_file.data,
                 current_app.config["STL_UPLOAD_FOLDER"],
             )
             if form.photo_file.data and form.photo_file.data.filename:
-                photo_filename, _ = save_upload(form.photo_file.data, current_app.config["PHOTO_UPLOAD_FOLDER"])
+                saved_photo_filename, _ = save_upload(
+                    form.photo_file.data,
+                    current_app.config["PHOTO_UPLOAD_FOLDER"],
+                )
         except ValueError as error:
-            cleanup_saved_uploads(stl_filename, photo_filename)
+            cleanup_saved_uploads(saved_stl_filename, saved_photo_filename)
             flash(str(error), "danger")
             return render_template("upload.html", form=form)
         except OSError:
-            cleanup_saved_uploads(stl_filename, photo_filename)
+            cleanup_saved_uploads(saved_stl_filename, saved_photo_filename)
             flash("Помилка збереження файлів. Перевірте розмір файлів і повторіть спробу.", "danger")
             return render_template("upload.html", form=form)
 
@@ -124,8 +127,8 @@ def upload():
             name=form.name.data.strip(),
             description=(form.description.data or "").strip() or None,
             original_filename=original_filename,
-            stl_filename=stl_filename,
-            photo_filename=photo_filename,
+            stl_filename=saved_stl_filename,
+            photo_filename=saved_photo_filename,
         )
         db.session.add(model)
         db.session.commit()
@@ -161,7 +164,7 @@ def download_model(model_id):
         current_app.config["STL_UPLOAD_FOLDER"],
         model.stl_filename,
         as_attachment=True,
-        download_name=model.original_filename,
+        download_name=secure_filename(model.original_filename) or "model.stl",
     )
 
 
