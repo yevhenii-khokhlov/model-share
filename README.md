@@ -1,68 +1,56 @@
 # Model Share - STL File Exchange Service
 
-Простий сервіс для обміну STL файлами на Flask + Python. Навчальний проєкт для першого курсу.
+Повний Flask сервіс для обміну STL файлами. Навчальний проєкт першого курсу.
 
 ## Функціональність
 
-- 📁 Завантаження STL файлів
-- 📸 Додавання фото моделей (опціонально)
-- 📝 Опис моделей (опціонально)
-- 👥 Реєстрація та вхід користувачів
-- 💾 Скачування файлів
-- 🗑️ Видалення власних файлів
+- 👤 Реєстрація та вхід користувачів
+- 📁 Завантаження STL файлів із назвою, описом і фото моделі
+- 🗂️ Каталог усіх завантажених моделей
+- 📥 Скачування STL файлів з підрахунком завантажень
+- 🗑️ Видалення власних моделей автором
+- 🙍 Особистий профіль із переліком власних завантажень
 
 ## Технічний стек
 
-- **Backend**: Flask, Flask-Login, Flask-SQLAlchemy
-- **БД**: SQLite
+- **Backend**: Flask, Flask-Login, Flask-SQLAlchemy, Flask-WTF, Werkzeug
+- **БД**: SQLite + SQLAlchemy ORM
 - **Frontend**: HTML, Bootstrap 5
 - **Python**: 3.8+
 
 ## Встановлення
 
-1. Клонуй репозиторій:
-```bash
-git clone https://github.com/yevhenii-khokhlov/model-share.git
-cd model-share
-```
+1. Створи віртуальне середовище та активуй його:
 
-2. Створи віртуальне середовище:
 ```bash
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# або
-venv\Scripts\activate  # Windows
+source venv/bin/activate
 ```
 
-3. Встанови залежності:
+2. Встанови залежності:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Запусти додаток:
+3. Запусти додаток:
+
 ```bash
 python run.py
 ```
 
-5. Відкрий браузер на `http://localhost:5000`
+4. Відкрий браузер на `http://localhost:5000`
 
-## Структура проєкту
+База даних SQLite створюється автоматично при першому запуску в файлі `app.db`.
 
-```
-model-share/
-├── app/
-│   ├── __init__.py
-│   ├── models.py
-│   ├── forms.py
-│   ├── routes.py
-│   ├── templates/
-│   └── static/
-├── run.py
-├── config.py
-├── requirements.txt
-└── README.md
-```
+## Маршрути
 
-## Автор
-
-Yevhenii Khokhlov
+- `GET /` — каталог усіх моделей
+- `GET, POST /register` — реєстрація
+- `GET, POST /login` — вхід
+- `GET /logout` — вихід
+- `GET, POST /upload` — завантаження моделі
+- `GET /profile` — профіль користувача
+- `GET /model/<id>` — сторінка моделі
+- `GET /download/<id>` — скачування STL
+- `POST /delete/<id>` — видалення власної моделі
