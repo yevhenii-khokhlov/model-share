@@ -29,7 +29,7 @@ def save_upload(file_storage, destination):
         raise ValueError("Некоректне ім'я файлу.")
     stored_name = f"{uuid4().hex}_{filename}"
     file_storage.save(destination / stored_name)
-    return stored_name
+    return stored_name, filename
 
 
 def remove_file_if_exists(folder, filename):
@@ -97,11 +97,15 @@ def upload():
     form = UploadForm()
     if form.validate_on_submit():
         stl_filename = None
+        original_filename = None
         photo_filename = None
         try:
-            stl_filename = save_upload(form.stl_file.data, current_app.config["STL_UPLOAD_FOLDER"])
+            stl_filename, original_filename = save_upload(
+                form.stl_file.data,
+                current_app.config["STL_UPLOAD_FOLDER"],
+            )
             if form.photo_file.data and form.photo_file.data.filename:
-                photo_filename = save_upload(form.photo_file.data, current_app.config["PHOTO_UPLOAD_FOLDER"])
+                photo_filename, _ = save_upload(form.photo_file.data, current_app.config["PHOTO_UPLOAD_FOLDER"])
         except ValueError as error:
             remove_file_if_exists(current_app.config["STL_UPLOAD_FOLDER"], stl_filename)
             flash(str(error), "danger")
@@ -111,6 +115,7 @@ def upload():
             author=current_user,
             name=form.name.data.strip(),
             description=(form.description.data or "").strip() or None,
+            original_filename=original_filename,
             stl_filename=stl_filename,
             photo_filename=photo_filename,
         )
@@ -148,7 +153,7 @@ def download_model(model_id):
         current_app.config["STL_UPLOAD_FOLDER"],
         model.stl_filename,
         as_attachment=True,
-        download_name=model.stl_filename.split("_", 1)[-1],
+        download_name=model.original_filename,
     )
 
 

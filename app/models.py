@@ -26,6 +26,7 @@ class Model(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
+    original_filename = db.Column(db.String(255), nullable=False)
     stl_filename = db.Column(db.String(255), nullable=False)
     photo_filename = db.Column(db.String(255))
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
