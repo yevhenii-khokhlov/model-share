@@ -1,5 +1,4 @@
 from pathlib import Path
-from urllib.parse import urlsplit
 from uuid import uuid4
 
 from flask import (
@@ -26,6 +25,8 @@ main_bp = Blueprint("main", __name__)
 
 def save_upload(file_storage, destination):
     filename = secure_filename(file_storage.filename or "")
+    if not filename:
+        raise ValueError("Некоректне ім'я файлу.")
     stored_name = f"{uuid4().hex}_{filename}"
     file_storage.save(destination / stored_name)
     return stored_name
@@ -77,7 +78,7 @@ def login():
             login_user(user)
             flash("Вхід виконано успішно.", "success")
             next_page = request.args.get("next")
-            if next_page and urlsplit(next_page).netloc == "":
+            if next_page and next_page.startswith("/") and not next_page.startswith("//"):
                 return redirect(next_page)
             return redirect(url_for("main.index"))
         flash("Невірний email або пароль.", "danger")
@@ -98,10 +99,16 @@ def logout():
 def upload():
     form = UploadForm()
     if form.validate_on_submit():
-        stl_filename = save_upload(form.stl_file.data, current_app.config["STL_UPLOAD_FOLDER"])
+        stl_filename = None
         photo_filename = None
-        if form.photo_file.data:
-            photo_filename = save_upload(form.photo_file.data, current_app.config["PHOTO_UPLOAD_FOLDER"])
+        try:
+            stl_filename = save_upload(form.stl_file.data, current_app.config["STL_UPLOAD_FOLDER"])
+            if form.photo_file.data and form.photo_file.data.filename:
+                photo_filename = save_upload(form.photo_file.data, current_app.config["PHOTO_UPLOAD_FOLDER"])
+        except ValueError as error:
+            remove_file_if_exists(current_app.config["STL_UPLOAD_FOLDER"], stl_filename)
+            flash(str(error), "danger")
+            return render_template("upload.html", form=form)
 
         model = Model(
             author=current_user,
