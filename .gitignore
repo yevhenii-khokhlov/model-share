@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.db
+.flask_secret
+.venv/
+venv/
+
+/app/static/uploads/*
+!/app/static/uploads/.gitkeep
+!/app/static/uploads/photos/
+!/app/static/uploads/stl/
+/app/static/uploads/photos/*
+!/app/static/uploads/photos/.gitkeep
+/app/static/uploads/stl/*
+!/app/static/uploads/stl/.gitkeep
