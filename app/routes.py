@@ -77,9 +77,6 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user)
             flash("Вхід виконано успішно.", "success")
-            next_page = request.args.get("next")
-            if next_page and next_page.startswith("/") and not next_page.startswith("//"):
-                return redirect(next_page)
             return redirect(url_for("main.index"))
         flash("Невірний email або пароль.", "danger")
 
